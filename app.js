@@ -62,14 +62,14 @@ app.get('/download', async (req, res) => {
 
     res.attachment(zipFileName);
 
-    // await fsExtra.remove(folderName, (err) => {
-    //   if (err) {
-    //     console.log(err);
-    //     res.status(500).send('Failed to delete folder');
-    //   } else {
-    //   }
-    // });
-    archive.pipe(res);
+    await fsExtra.remove(folderName, (err) => {
+      if (err) {
+        console.log(err);
+        res.status(500).send('Failed to delete folder');
+      } else {
+        archive.pipe(res);
+      }
+    });
   } catch (err) {
     console.log(err);
     res.status(500).send('An error occurred');
