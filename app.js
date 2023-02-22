@@ -27,10 +27,9 @@ app.get('/download', async (req, res) => {
     const { url } = req.query;
     const result = await axios.get(`http://127.0.0.1:5000/findUrls?url=${url}`);
     const urls = await result.data;
-    console.log(1);
+
     let imageNames = [];
     let folderName = randomstring.generate();
-    console.log(2);
 
     await fs.mkdir(folderName, (err) => {
       if (err) {
@@ -38,7 +37,6 @@ app.get('/download', async (req, res) => {
         res.status(500).send('Failed to create folder');
       }
     });
-    console.log(3);
 
     for (const url of urls) {
       const result = await axios.post(`http://localhost:4000/downloadImage`, {
@@ -49,37 +47,29 @@ app.get('/download', async (req, res) => {
 
       await imageNames.push(data.name);
     }
-    console.log(4);
 
     const zipFileName = 'Images.zip';
 
     const archive = await archiver('zip', {
       zlib: { level: 9 },
     });
-    console.log(5);
 
     for (const x of imageNames) {
       await archive.file(`${folderName}/${x}`, { name: `${x}` });
     }
-    console.log(6);
 
     await archive.finalize();
-    console.log(7);
 
     res.attachment(zipFileName);
-    console.log(8);
 
     await fsExtra.remove(folderName, (err) => {
       if (err) {
         console.log(err);
         res.status(500).send('Failed to delete folder');
       } else {
-        console.log(9);
         archive.pipe(res);
       }
     });
-
-    console.log(10);
   } catch (err) {
     console.log(err);
     res.status(500).send('An error occurred');
